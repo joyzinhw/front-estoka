@@ -205,44 +205,20 @@ async function consultarSaldo() {
 
   if (!nomeBusca) {
     resultadoDiv.innerHTML = '<p style="color: red;">Por favor, digite o nome do produto.</p>';
+    return;
+  }
+
+  const produto = await buscarProdutoPorNome(nomeBusca);
+
+  if (produto) {
+    resultadoDiv.innerHTML = `
+      <p>Produto: <strong>${produto.nome}</strong></p>
+      <p>Quantidade em estoque: <strong>${produto.quantidade ?? 0}</strong></p>
+    `;
   } else {
-    const produto = await buscarProdutoPorNome(nomeBusca);
-    if (produto) {
-      resultadoDiv.innerHTML = `
-        <p>Produto: <strong>${produto.nome}</strong></p>
-        <p>Quantidade em estoque: <strong>${produto.quantidade ?? 0}</strong></p>
-      `;
-    } else {
-      resultadoDiv.innerHTML = '<p style="color: red;">Produto não encontrado.</p>';
-    }
-  }
-
-  // Exibe todos os produtos em formato de tabela
-  await exibirTodosProdutosNaSecaoSaldo();
-}
-
-
-async function exibirTodosProdutosNaSecaoSaldo() {
-  try {
-    const res = await fetch(apiURL);
-    const produtos = await res.json();
-
-    const tbody = document.querySelector('#tabelaTodosProdutos tbody');
-    tbody.innerHTML = '';
-
-    produtos.forEach(prod => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${prod.nome}</td>
-        <td>${prod.quantidade ?? 0}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  } catch (error) {
-    console.error('Erro ao carregar todos os produtos para exibição na seção de saldo:', error);
+    resultadoDiv.innerHTML = '<p style="color: red;">Produto não encontrado.</p>';
   }
 }
-
 
 async function exportarProdutos() {
   try {
