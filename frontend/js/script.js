@@ -1,5 +1,19 @@
 const apiURL = 'http://localhost:5000/produtos';
 
+const signUpButton=document.getElementById('signUpButton');
+const signInButton=document.getElementById('signInButton');
+const signInForm=document.getElementById('signIn');
+const signUpForm=document.getElementById('signup');
+
+signUpButton.addEventListener('click',function(){
+    signInForm.style.display="none";
+    signUpForm.style.display="block";
+})
+signInButton.addEventListener('click', function(){
+    signInForm.style.display="block";
+    signUpForm.style.display="none";
+})
+
 carregarProdutos();
 
 async function carregarProdutos() {
@@ -37,6 +51,17 @@ async function cadastrarProduto() {
   }
 
   try {
+    // Verifica se já existe um produto com o mesmo nome
+    const res = await fetch(apiURL);
+    const produtos = await res.json();
+    const nomeExiste = produtos.some(p => p.nome.toLowerCase() === nome.toLowerCase());
+
+    if (nomeExiste) {
+      alert('Já existe um produto com esse nome!');
+      return;
+    }
+
+    // Cadastrar novo produto
     await fetch(apiURL, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -51,6 +76,7 @@ async function cadastrarProduto() {
     alert('Erro ao cadastrar produto.');
   }
 }
+
 
 async function deletarProduto(id) {
   const confirmar = confirm('Tem certeza que deseja deletar este produto?');
@@ -191,5 +217,49 @@ async function consultarSaldo() {
     `;
   } else {
     resultadoDiv.innerHTML = '<p style="color: red;">Produto não encontrado.</p>';
+  }
+}
+
+async function exportarProdutos() {
+  try {
+    const res = await fetch(`${apiURL}/exportar`);
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'produtos.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (error) {
+    alert('Erro ao exportar produtos.');
+    console.error(error);
+  }
+}
+
+async function importarProdutos() {
+  const input = document.getElementById('arquivoImportacao');
+  const file = input.files[0];
+  if (!file) {
+    alert('Selecione um arquivo!');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('arquivo', file);
+
+  try {
+    const res = await fetch(`${apiURL}/importar`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await res.json();
+    alert(result.message || 'Importação realizada!');
+    carregarProdutos(); // atualiza tabela
+  } catch (error) {
+    alert('Erro ao importar produtos.');
+    console.error(error);
   }
 }

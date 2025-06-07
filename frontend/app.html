@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta name="author" content="@joyzinhw">
+    <meta name="description" content="um site para estoque">
+    <meta name="keywords" content="sites, web, cadrastro, estoque">
+    
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="short icon" href="/frontend/img/LOGO.png">
+    
+    <title>Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/frontend/cs/estilo.css">
+    <script type="module" src="/frontend/js/firebaseauth.js"></script>
+        <script type="module" src="/frontend/js/homepage.js"></script>
+</head>
+<body>
+
+    <header>
+    <img src="/frontend/img/LOGO.png" alt="Logo" class="logo">
+    <h1>ESTOKA</h1>
+    <img src="/frontend/img/LOGO.png" alt="Logo" class="logo">
+  </header>
+  
+    <div class="container" id="signup" style="display:none;">
+      <h1 class="form-title">Registrar</h1>
+      <form method="post" action="">
+        <div id="signUpMessage" class="messageDiv" style="display:none;"></div>
+        <div class="input-group">
+           <i class="fas fa-user"></i>
+           <input type="text"  id="fName" placeholder="First Name" required>
+           <label for="fname">Primeiro Nome</label>
+        </div>
+        <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input type="text"  id="lName" placeholder="Last Name" required>
+            <label for="lName">Ultimo Nome</label>
+        </div>
+        <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email"  id="rEmail" placeholder="Email" required>
+            <label for="rEmail">Gmail</label>
+        </div>
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="rPassword"  placeholder="Password" required>
+            <label for="rPassword">Senha</label>
+        </div>
+       <button class="btn" id="submitSignUp" >Entrar</button>
+      </form>
+<br>
+      <div class="icons">
+        <i class="fab fa-google"></i>
+        <i class="fab fa-facebook"></i>
+      </div>
+      <div class="links">
+        <p>Já tem uma conta?</p>
+        <button id="signInButton">Entrar</button>
+      </div>
+    </div>
+
+  <div class="container" id="signIn">
+        <h1 class="form-title">Entrar</h1>
+        <form method="post" action="">
+          <div id="signInMessage" class="messageDiv" style="display:none;"></div>
+
+          <div class="input-group">
+              <i class="fas fa-envelope"></i>
+              <input type="email"  id="email" placeholder="Email" required>
+              <label for="email">Gmail</label>
+          </div>
+          <div class="input-group">
+              <i class="fas fa-lock"></i>
+            <input type="password" id="password"  placeholder="Password" required>
+              <label for="password">Senha</label>
+          </div>
+          <p class="recover">
+            <a href="reset-password.html">Esqueceu a senha?</a>
+          </p>
+         <button  class="btn"  id="submitSignIn">Entrar</button>
+        </form>
+<br>
+        <div class="icons">
+          <i class="fab fa-google"></i>
+          <i class="fab fa-facebook"></i>
+        </div>
+        <div class="links">
+          <p>Não tem conta?</p>
+          <button id="signUpButton">Faça sua conta</button>
+        </div>
+      </div>
+      <script src="/frontend/js/script.js"></script>
+</body>
+</html>
