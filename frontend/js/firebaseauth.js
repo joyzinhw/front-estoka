@@ -103,30 +103,31 @@ if (signIn) {
 
 // Login com Google
 const googleLoginBtn = document.querySelectorAll('.googleLoginBtn');
-googleLoginBtn.forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const provider = new GoogleAuthProvider();
+  googleLoginBtn.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const provider = new GoogleAuthProvider();
 
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
 
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
 
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          email: user.email,
-          name: user.displayName,
-          provider: "google"
-        });
+        if (!userSnap.exists()) {
+          await setDoc(userRef, {
+            email: user.email,
+            name: user.displayName,
+            provider: "google"
+          });
+        }
+
+        localStorage.setItem('loggedInUserId', user.uid);
+        window.location.href = 'app.html';
+      } catch (error) {
+        console.error("Erro no login com Google:", error);
+        showMessage('Erro ao logar com Google.', 'signInMessage');
       }
-
-      localStorage.setItem('loggedInUserId', user.uid);
-      window.location.href = 'app.html';
-    } catch (error) {
-      console.error("Erro no login com Google:", error);
-      showMessage('Erro ao logar com Google.', 'signInMessage');
-    }
+    });
   });
-});
+
