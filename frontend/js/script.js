@@ -328,11 +328,16 @@ function atualizarTabela(produtos) {
       <td>${prod.nome}</td>
       <td>${prod.quantidade ?? 0}</td>
       <td>${dataFormatada}</td>
-      <td><button onclick="deletarProduto('${prod._id}')">DELETAR</button></td>
+      <td>
+      <button onclick="deletarProduto('${prod._id}')">DELETAR</button>
+      <button onclick="editarProdutoPrompt('${prod._id}')">EDITAR</button>
+      </td>
     `;
     tabela.appendChild(tr);
   });
 }
+
+
 
 async function carregarProdutos() {
   try {
@@ -419,6 +424,56 @@ async function deletarProduto(id) {
     alert('Erro ao deletar produto.');
   }
 }
+
+async function editarProdutoPrompt(id) {
+  const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || '[]');
+  const produto = cachedProdutos.find(p => p._id === id);
+  if (!produto) {
+    alert('Produto não encontrado.');
+    return;
+  }
+
+  const novoNome = prompt('Editar nome do produto:', produto.nome);
+  if (!novoNome) return;
+
+  const novaQtd = parseInt(prompt('Editar quantidade:', produto.quantidade));
+  if (isNaN(novaQtd) || novaQtd < 0) {
+    alert('Quantidade inválida.');
+    return;
+  }
+
+  const novoVenc = prompt('Editar data de validade (AAAA-MM-DD):', produto.vencimento?.substring(0, 10));
+  if (!novoVenc) return;
+
+  await atualizarProduto(id, { nome: novoNome, quantidade: novaQtd, vencimento: novoVenc });
+}
+
+async function atualizarProduto(id, dadosAtualizados) {
+  try {
+    const response = await fetch(`${apiURL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dadosAtualizados)
+    });
+
+    const produtoAtualizado = await response.json();
+
+    // Atualiza o cache local
+    let cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || '[]');
+    const index = cachedProdutos.findIndex(p => p._id === id);
+    if (index !== -1) {
+      cachedProdutos[index] = produtoAtualizado;
+      localStorage.setItem('cachedProdutos', JSON.stringify(cachedProdutos));
+    }
+
+    atualizarTabela(cachedProdutos);
+    alert('Produto atualizado com sucesso!');
+  } catch (error) {
+    console.error('Erro ao atualizar produto:', error);
+    alert('Erro ao atualizar produto.');
+  }
+}
+
 
 async function movimentarProduto(id, tipo, quantidade) {
   if (!['entrada', 'saida'].includes(tipo) || isNaN(quantidade) || quantidade <= 0) {
