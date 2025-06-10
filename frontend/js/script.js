@@ -320,7 +320,10 @@ function atualizarTabela(produtos) {
     if (prod.vencimento) {
       const date = new Date(prod.vencimento);
       if (!isNaN(date.getTime())) {
-        dataFormatada = date.toLocaleDateString('pt-BR');
+        // Ajusta para o timezone local antes de formatar
+        const offset = date.getTimezoneOffset() * 60000; // offset em milissegundos
+        const localDate = new Date(date.getTime() - offset);
+        dataFormatada = localDate.toISOString().split('T')[0].split('-').reverse().join('/');
       }
     }
     
@@ -336,8 +339,6 @@ function atualizarTabela(produtos) {
     tabela.appendChild(tr);
   });
 }
-
-
 
 async function carregarProdutos() {
   try {
@@ -426,26 +427,42 @@ async function deletarProduto(id) {
 }
 
 async function editarProdutoPrompt(id) {
-  const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || '[]');
+const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || '[]');
   const produto = cachedProdutos.find(p => p._id === id);
   if (!produto) {
     alert('Produto não encontrado.');
     return;
   }
 
-  const novoNome = prompt('Editar nome do produto:', produto.nome);
-  if (!novoNome) return;
+  // Formata a data atual para exibição no prompt (AAAA-MM-DD)
+  const dataAtual = produto.vencimento ? new Date(produto.vencimento).toISOString().split('T')[0] : '';
 
-  const novaQtd = parseInt(prompt('Editar quantidade:', produto.quantidade));
-  if (isNaN(novaQtd) || novaQtd < 0) {
-    alert('Quantidade inválida.');
+  const novoNome = prompt('Editar nome do produto:', produto.nome);
+  if (novoNome === null) return; // Usuário cancelou
+
+  const novaQtdStr = prompt('Editar quantidade:', produto.quantidade);
+  if (novaQtdStr === null) return; // Usuário cancelou
+  
+  const novaQtd = parseInt(novaQtdStr);
+  if (isNaN(novaQtd)) {
+    alert('Quantidade deve ser um número válido.');
     return;
   }
 
-  const novoVenc = prompt('Editar data de validade (AAAA-MM-DD):', produto.vencimento?.substring(0, 10));
-  if (!novoVenc) return;
+  const novoVenc = prompt('Editar data de validade (AAAA-MM-DD):', dataAtual);
+  if (novoVenc === null) return; // Usuário cancelou
 
-  await atualizarProduto(id, { nome: novoNome, quantidade: novaQtd, vencimento: novoVenc });
+  // Valida a data
+  if (novoVenc && !/^\d{4}-\d{2}-\d{2}$/.test(novoVenc)) {
+    alert('Formato de data inválido. Use AAAA-MM-DD.');
+    return;
+  }
+
+  await atualizarProduto(id, { 
+    nome: novoNome, 
+    quantidade: novaQtd, 
+    vencimento: novoVenc 
+  });
 }
 
 async function atualizarProduto(id, dadosAtualizados) {
@@ -479,7 +496,7 @@ async function movimentarProduto(id, tipo, quantidade) {
   if (!['entrada', 'saida'].includes(tipo) || isNaN(quantidade) || quantidade <= 0) {
     alert('Tipo ou quantidade inválida para movimentação!');
     return;
-  }
+  }     console.error('Erro ao atualizar produto:', error);
 
   try {
     const response = await fetch(`${apiURL}/${id}/movimentar`, {
