@@ -314,10 +314,20 @@ function atualizarTabela(produtos) {
 
   produtos.forEach(prod => {
     const tr = document.createElement('tr');
+    
+    // Formata a data para exibição
+    let dataFormatada = 'Sem data';
+    if (prod.vencimento) {
+      const date = new Date(prod.vencimento);
+      if (!isNaN(date.getTime())) {
+        dataFormatada = date.toLocaleDateString('pt-BR');
+      }
+    }
+    
     tr.innerHTML = `
       <td>${prod.nome}</td>
       <td>${prod.quantidade ?? 0}</td>
-      <td>${prod.vencimento ? new Date(prod.vencimento).toISOString().slice(0, 10) : 'Sem data'}</td>
+      <td>${dataFormatada}</td>
       <td><button onclick="deletarProduto('${prod._id}')">DELETAR</button></td>
     `;
     tabela.appendChild(tr);
