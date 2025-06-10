@@ -35,7 +35,6 @@
       <h3>DADOS</h3>
       <button onclick="mostrarSecao('secaoImportar')">IMPORTAR</button>
       <button onclick="mostrarSecao('secaoExportar')">EXPORTAR</button>
-      <button onclick="mostrarSecao('secaoDashboard')">DASHBOARD</button>
 
     <h3></h3>
 <button id="logout">SAIR</button>
@@ -103,33 +102,6 @@
       <section id="secaoExportar" class="secao-oculta">
         <h2>Exportar Produtos</h2>
         <button onclick="exportarProdutos()">BAIXAR PLANILHA</button>
-      </section>
-
-      <section id="secaoDashboard" class="secao-oculta">
-        <h2>Dashboard de Produtos</h2>
-        <div>
-          <label for="filtroNome">Nome:</label>
-          <input type="text" id="filtroNome" oninput="filtrarDashboard()" placeholder="Digite o nome do produto">
-          
-          <label for="filtroQtdMin">Qtd. Mínima:</label>
-          <input type="number" id="filtroQtdMin" oninput="filtrarDashboard()" placeholder="0">
-
-          <label for="filtroQtdMax">Qtd. Máxima:</label>
-          <input type="number" id="filtroQtdMax" oninput="filtrarDashboard()" placeholder="100">
-        </div>
-
-        <table border="1" id="tabelaDashboard">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Quantidade</th>
-              <th>Data de Validade</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-
-        <canvas id="graficoDashboard" style="max-width: 600px; margin-top: 30px;"></canvas>
       </section>
     </main>
   </div>
