@@ -14,133 +14,217 @@ signInButton.addEventListener('click', function () {
   signUpForm.style.display = "none";
 });
 
+let produtosCache = []; // Cache local para manter os dados
 
-// Função para carregar produtos do MongoDB
+// Função para inicializar a aplicação
+document.addEventListener('DOMContentLoaded', () => {
+    carregarProdutos();
+    
+    // Verifica se há dados no localStorage para exibir imediatamente
+    const cachedData = localStorage.getItem('produtosCache');
+    if (cachedData) {
+        produtosCache = JSON.parse(cachedData);
+        atualizarTabelaProdutos(produtosCache);
+    }
+});
+
+// Função para carregar produtos do servidor
 async function carregarProdutos() {
-  try {
-    const res = await fetch(apiURL);
-    if (!res.ok) throw new Error('Erro ao carregar produtos');
-    
-    const produtos = await res.json();
+    try {
+        const res = await fetch(apiURL);
+        produtosCache = await res.json();
+        
+        // Atualiza o cache local e o localStorage
+        localStorage.setItem('produtosCache', JSON.stringify(produtosCache));
+        atualizarTabelaProdutos(produtosCache);
+    } catch (error) {
+        console.error('Erro ao carregar produtos:', error);
+        // Mantém os dados do cache mesmo se houver erro na conexão
+        if (produtosCache.length > 0) {
+            atualizarTabelaProdutos(produtosCache);
+        }
+    }
+}
+
+// Função para atualizar a tabela de produtos
+function atualizarTabelaProdutos(produtos) {
     const tabela = document.getElementById('produtosTable');
-    
-    if (tabela) {
-      tabela.innerHTML = '';
-      
-      produtos.forEach(prod => {
+    if (!tabela) return;
+
+    tabela.innerHTML = '';
+
+    produtos.forEach(prod => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${prod.nome}</td>
-          <td>${prod.quantidade ?? 0}</td>
-          <td>${prod.vencimento ? new Date(prod.vencimento).toISOString().slice(0, 10) : 'Sem data'}</td>
-          <td><button onclick="deletarProduto('${prod._id}')">DELETAR</button></td>
+            <td>${prod.nome}</td>
+            <td>${prod.quantidade ?? 0}</td>
+            <td>${prod.vencimento ? new Date(prod.vencimento).toISOString().slice(0, 10) : 'Sem data'}</td>
+            <td><button onclick="deletarProduto('${prod._id}')">DELETAR</button></td>
         `;
         tabela.appendChild(tr);
-      });
-    }
-  } catch (error) {
-    console.error('Erro ao carregar produtos:', error);
-    alert('Erro ao carregar produtos. Tente recarregar a página.');
-  }
+    });
 }
 
-// Cadastrar novo produto
+// Função para cadastrar novo produto
 async function cadastrarProduto() {
-  const nome = document.getElementById('produtoNome').value.trim();
-  const quantidade = parseInt(document.getElementById('produtoQtd').value);
-  const vencimento = document.getElementById('produtoVencimento').value;
+    const nome = document.getElementById('produtoNome').value.trim();
+    const quantidade = parseInt(document.getElementById('produtoQtd').value);
+    const vencimento = document.getElementById('produtoVencimento').value;
 
-  if (!nome || isNaN(quantidade)) {
-    alert('Preencha todos os campos corretamente!');
-    return;
-  }
-
-  try {
-    const response = await fetch(apiURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, quantidade, vencimento })
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.erro || 'Erro ao cadastrar produto');
+    if (!nome || isNaN(quantidade)) {
+        alert('Preencha todos os campos corretamente!');
+        return;
     }
 
-    // Limpar campos e atualizar tabela
-    document.getElementById('produtoNome').value = '';
-    document.getElementById('produtoQtd').value = '';
-    document.getElementById('produtoVencimento').value = '';
-    
-    await carregarProdutos();
-    alert('Produto cadastrado com sucesso!');
-  } catch (error) {
-    console.error('Erro ao cadastrar produto:', error);
-    alert(error.message);
-  }
+    try {
+        // Verifica se o produto já existe
+        const produtoExiste = produtosCache.some(p => 
+            p.nome.toLowerCase() === nome.toLowerCase()
+        );
+
+        if (produtoExiste) {
+            alert('Já existe um produto com esse nome!');
+            return;
+        }
+
+        const response = await fetch(apiURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome, quantidade, vencimento })
+        });
+
+        const novoProduto = await response.json();
+        
+        // Atualiza o cache local
+        produtosCache.push(novoProduto);
+        localStorage.setItem('produtosCache', JSON.stringify(produtosCache));
+        atualizarTabelaProdutos(produtosCache);
+
+        // Limpa os campos do formulário
+        document.getElementById('produtoNome').value = '';
+        document.getElementById('produtoQtd').value = '';
+        document.getElementById('produtoVencimento').value = '';
+    } catch (error) {
+        console.error('Erro ao cadastrar produto:', error);
+        alert('Erro ao cadastrar produto.');
+    }
 }
 
-// Deletar produto
+// Função para deletar produto
 async function deletarProduto(id) {
-  if (!confirm('Tem certeza que deseja deletar este produto?')) return;
+    const confirmar = confirm('Tem certeza que deseja deletar este produto?');
+    if (!confirmar) return;
 
-  try {
-    const response = await fetch(`${apiURL}/${id}`, {
-      method: 'DELETE'
-    });
-
-    if (!response.ok) throw new Error('Erro ao deletar produto');
-
-    await carregarProdutos();
-    alert('Produto deletado com sucesso!');
-  } catch (error) {
-    console.error('Erro ao deletar produto:', error);
-    alert('Erro ao deletar produto.');
-  }
+    try {
+        await fetch(`${apiURL}/${id}`, {
+            method: 'DELETE'
+        });
+        
+        // Atualiza o cache local
+        produtosCache = produtosCache.filter(p => p._id !== id);
+        localStorage.setItem('produtosCache', JSON.stringify(produtosCache));
+        atualizarTabelaProdutos(produtosCache);
+    } catch (error) {
+        console.error('Erro ao deletar produto:', error);
+        alert('Erro ao deletar produto.');
+    }
 }
 
-// Movimentar produto (entrada/saída)
-async function executarMovimento(tipo) {
-  const nome = document.getElementById('nomeProdutoMovimento').value.trim();
-  const qtd = parseInt(document.getElementById('qtdMovimento').value);
-
-  if (!nome || isNaN(qtd) || qtd <= 0) {
-    alert('Informe o nome do produto e uma quantidade válida.');
-    return;
-  }
-
-  try {
-    // Primeiro busca o produto pelo nome
-    const produtos = await (await fetch(apiURL)).json();
-    const produto = produtos.find(p => p.nome.toLowerCase() === nome.toLowerCase());
-    
-    if (!produto) {
-      alert('Produto não encontrado.');
-      return;
+// Função para movimentar produto (entrada/saída)
+async function movimentarProduto(id, tipo, quantidade) {
+    if (!['entrada', 'saida'].includes(tipo) || isNaN(quantidade) || quantidade <= 0) {
+        alert('Tipo ou quantidade inválida para movimentação!');
+        return;
     }
 
-    // Faz a movimentação
-    const response = await fetch(`${apiURL}/${produto._id}/movimentar`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tipo, quantidade: qtd })
-    });
+    try {
+        const response = await fetch(`${apiURL}/${id}/movimentar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tipo, quantidade })
+        });
 
-    if (!response.ok) throw new Error('Erro ao movimentar produto');
+        const produtoAtualizado = await response.json();
+        
+        // Atualiza o cache local
+        const index = produtosCache.findIndex(p => p._id === id);
+        if (index !== -1) {
+            produtosCache[index] = produtoAtualizado;
+            localStorage.setItem('produtosCache', JSON.stringify(produtosCache));
+            atualizarTabelaProdutos(produtosCache);
+        }
 
-    // Limpar campos e atualizar dados
+        alert('Movimentação realizada com sucesso!');
+    } catch (error) {
+        console.error('Erro ao movimentar produto:', error);
+        alert('Erro ao movimentar produto.');
+    }
+}
+
+// Função para executar movimento (entrada/saída)
+async function executarMovimento(tipo) {
+    const nome = document.getElementById('nomeProdutoMovimento').value.trim();
+    const qtd = parseInt(document.getElementById('qtdMovimento').value);
+
+    if (!nome || isNaN(qtd) || qtd <= 0) {
+        alert('Informe o nome do produto e uma quantidade válida.');
+        return;
+    }
+
+    const produto = produtosCache.find(p => p.nome.toLowerCase() === nome.toLowerCase());
+    if (!produto) {
+        alert('Produto não encontrado.');
+        return;
+    }
+
+    await movimentarProduto(produto._id, tipo, qtd);
+
     document.getElementById('nomeProdutoMovimento').value = '';
     document.getElementById('qtdMovimento').value = '';
-    
-    await carregarProdutos();
-    alert(`Movimentação de ${tipo} realizada com sucesso!`);
-  } catch (error) {
-    console.error('Erro ao movimentar produto:', error);
-    alert('Erro ao movimentar produto.');
-  }
 }
 
-// Consultar saldo
+// Função para importar produtos
+async function importarProdutos() {
+    const input = document.getElementById('arquivoImportacao');
+    const file = input.files[0];
+    if (!file) {
+        alert('Selecione um arquivo!');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('arquivo', file);
+
+    try {
+        const res = await fetch(`${apiURL}/importar`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await res.json();
+        alert(result.message || 'Importação realizada!');
+        
+        // Atualiza o cache após importação
+        await carregarProdutos();
+    } catch (error) {
+        alert('Erro ao importar produtos.');
+        console.error(error);
+    }
+}
+
+// Função para mostrar seção
+function mostrarSecao(idSecao) {
+    const secoes = document.querySelectorAll('main > section');
+    secoes.forEach(sec => sec.className = 'secao-oculta');
+    const secaoAtiva = document.getElementById(idSecao);
+    if (secaoAtiva) secaoAtiva.className = 'secao-visivel';
+    
+    // Carrega dados específicos se for o dashboard
+    if (idSecao === 'secaoDashboard') {
+        carregarDashboard();
+    }
+}
+
 async function consultarSaldo() {
   const nomeBusca = document.getElementById('buscaNome').value.trim();
   const resultadoDiv = document.getElementById('resultadoSaldo');
@@ -150,49 +234,42 @@ async function consultarSaldo() {
     return;
   }
 
-  try {
-    const produtos = await (await fetch(apiURL)).json();
-    const produto = produtos.find(p => p.nome.toLowerCase() === nomeBusca.toLowerCase());
+  const produto = await buscarProdutoPorNome(nomeBusca);
 
-    if (produto) {
-      resultadoDiv.innerHTML = `
-        <p>Produto: <strong>${produto.nome}</strong></p>
-        <p>Quantidade em estoque: <strong>${produto.quantidade ?? 0}</strong></p>
-      `;
-    } else {
-      resultadoDiv.innerHTML = '<p style="color: red;">Produto não encontrado.</p>';
-    }
-  } catch (error) {
-    console.error('Erro ao consultar saldo:', error);
-    resultadoDiv.innerHTML = '<p style="color: red;">Erro ao consultar saldo.</p>';
+  if (produto) {
+    resultadoDiv.innerHTML = `
+      <p>Produto: <strong>${produto.nome}</strong></p>
+      <p>Quantidade em estoque: <strong>${produto.quantidade ?? 0}</strong></p>
+    `;
+  } else {
+    resultadoDiv.innerHTML = '<p style="color: red;">Produto não encontrado.</p>';
   }
 }
 
-// Ver histórico por nome
-async function verHistoricoPorNome() {
-  const nome = document.getElementById('nomeProdutoHistorico').value.trim();
-  const lista = document.getElementById('listaHistorico');
-
-  if (!nome) {
-    alert('Informe o nome do produto.');
-    return;
-  }
-
+async function exportarProdutos() {
   try {
-    // Primeiro busca o produto pelo nome
-    const produtos = await (await fetch(apiURL)).json();
-    const produto = produtos.find(p => p.nome.toLowerCase() === nome.toLowerCase());
-    
-    if (!produto) {
-      alert('Produto não encontrado.');
-      return;
-    }
+    const res = await fetch(`${apiURL}/exportar`);
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
 
-    // Busca o histórico
-    const response = await fetch(`${apiURL}/${produto._id}/historico`);
-    if (!response.ok) throw new Error('Erro ao buscar histórico');
-    
-    const historico = await response.json();
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'produtos.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (error) {
+    alert('Erro ao exportar produtos.');
+    console.error(error);
+  }
+}
+
+async function verHistorico(id) {
+  try {
+    const res = await fetch(`${apiURL}/${id}/historico`);
+    const historico = await res.json();
+
+    const lista = document.getElementById('listaHistorico');
     lista.innerHTML = '';
 
     if (historico.length === 0) {
@@ -205,167 +282,102 @@ async function verHistoricoPorNome() {
       li.textContent = `Tipo: ${item.tipo}, Quantidade: ${item.quantidade}, Data: ${new Date(item.data).toLocaleString()}`;
       lista.appendChild(li);
     });
-
-    document.getElementById('nomeProdutoHistorico').value = '';
   } catch (error) {
     console.error('Erro ao buscar histórico:', error);
     alert('Erro ao buscar histórico.');
   }
 }
 
-// Exportar produtos
-async function exportarProdutos() {
-  try {
-    const response = await fetch(`${apiURL}/exportar`);
-    if (!response.ok) throw new Error('Erro ao exportar produtos');
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'produtos.xlsx';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  } catch (error) {
-    console.error('Erro ao exportar produtos:', error);
-    alert('Erro ao exportar produtos.');
-  }
-}
-
-// Importar produtos
-async function importarProdutos() {
-  const input = document.getElementById('arquivoImportacao');
-  const file = input.files[0];
-  
-  if (!file) {
-    alert('Selecione um arquivo!');
+async function verHistoricoPorNome() {
+  const nome = document.getElementById('nomeProdutoHistorico').value.trim();
+  if (!nome) {
+    alert('Informe o nome do produto.');
     return;
   }
 
-  const formData = new FormData();
-  formData.append('arquivo', file);
-
-  try {
-    const response = await fetch(`${apiURL}/importar`, {
-      method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) throw new Error('Erro ao importar produtos');
-
-    const result = await response.json();
-    alert(result.message || 'Importação realizada com sucesso!');
-    await carregarProdutos();
-    input.value = ''; // Limpa o input de arquivo
-  } catch (error) {
-    console.error('Erro ao importar produtos:', error);
-    alert(error.message || 'Erro ao importar produtos.');
+  const produto = await buscarProdutoPorNome(nome);
+  if (!produto) {
+    alert('Produto não encontrado.');
+    return;
   }
+
+  verHistorico(produto._id);
+
+  document.getElementById('nomeProdutoHistorico').value = '';
 }
 
-// Dashboard
+// Funções do Dashboard (mantidas como estão)
 let produtosDashboard = [];
 let chartInstance = null;
 
 async function carregarDashboard() {
-  try {
-    const response = await fetch(apiURL);
-    if (!response.ok) throw new Error('Erro ao carregar dashboard');
-    
-    produtosDashboard = await response.json();
-    atualizarTabelaDashboard(produtosDashboard);
-    atualizarGraficoDashboard(produtosDashboard);
-  } catch (error) {
-    console.error('Erro ao carregar dashboard:', error);
-    alert('Erro ao carregar dados do dashboard.');
-  }
+    try {
+        const res = await fetch(apiURL);
+        produtosDashboard = await res.json();
+        atualizarTabelaDashboard(produtosDashboard);
+        atualizarGraficoDashboard(produtosDashboard);
+    } catch (error) {
+        console.error('Erro ao carregar dashboard:', error);
+        alert('Erro ao carregar dados do dashboard.');
+    }
 }
 
 function atualizarTabelaDashboard(produtos) {
-  const tbody = document.querySelector('#tabelaDashboard tbody');
-  tbody.innerHTML = '';
-  
-  produtos.forEach(prod => {
-    const tr = document.createElement('tr');
-    const dataFormatada = prod.vencimento ? new Date(prod.vencimento).toISOString().slice(0, 10) : 'Sem data';
-    tr.innerHTML = `
-      <td>${prod.nome}</td>
-      <td>${prod.quantidade ?? 0}</td>
-      <td>${dataFormatada}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+    const tbody = document.querySelector('#tabelaDashboard tbody');
+    tbody.innerHTML = '';
+    
+    produtos.forEach(prod => {
+        const tr = document.createElement('tr');
+        const dataFormatada = prod.vencimento ? new Date(prod.vencimento).toISOString().slice(0, 10) : 'Sem data';
+        tr.innerHTML = `<td>${prod.nome}</td><td>${prod.quantidade ?? 0}</td><td>${dataFormatada}</td>`;
+        tbody.appendChild(tr);
+    });
 }
 
 function atualizarGraficoDashboard(produtos) {
-  const ctx = document.getElementById('graficoDashboard').getContext('2d');
-  const nomes = produtos.map(p => p.nome);
-  const quantidades = produtos.map(p => p.quantidade ?? 0);
+    const ctx = document.getElementById('graficoDashboard').getContext('2d');
+    const nomes = produtos.map(p => p.nome);
+    const quantidades = produtos.map(p => p.quantidade ?? 0);
 
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
-
-  chartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: nomes,
-      datasets: [{
-        label: 'Quantidade em Estoque',
-        data: quantidades,
-        backgroundColor: 'rgba(54, 162, 235, 0.7)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: { beginAtZero: true }
-      }
+    if (chartInstance) {
+        chartInstance.destroy();
     }
-  });
+
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: nomes,
+            datasets: [{
+                label: 'Quantidade em Estoque',
+                data: quantidades,
+                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
 }
 
 function filtrarDashboard() {
-  const nomeFiltro = document.getElementById('filtroNome').value.toLowerCase();
-  const qtdMin = parseInt(document.getElementById('filtroQtdMin').value) || 0;
-  const qtdMax = parseInt(document.getElementById('filtroQtdMax').value) || Infinity;
+    const nomeFiltro = document.getElementById('filtroNome').value.toLowerCase();
+    const qtdMin = parseInt(document.getElementById('filtroQtdMin').value) || 0;
+    const qtdMax = parseInt(document.getElementById('filtroQtdMax').value) || Infinity;
 
-  const filtrados = produtosDashboard.filter(p => 
-    p.nome.toLowerCase().includes(nomeFiltro) &&
-    p.quantidade >= qtdMin &&
-    p.quantidade <= qtdMax
-  );
+    const filtrados = produtosDashboard.filter(p => 
+        p.nome.toLowerCase().includes(nomeFiltro) &&
+        p.quantidade >= qtdMin &&
+        p.quantidade <= qtdMax
+    );
 
-  atualizarTabelaDashboard(filtrados);
-  atualizarGraficoDashboard(filtrados);
+    atualizarTabelaDashboard(filtrados);
+    atualizarGraficoDashboard(filtrados);
 }
-
-// Mostrar/ocultar seções
-function mostrarSecao(idSecao) {
-  const secoes = document.querySelectorAll('main > section');
-  secoes.forEach(sec => sec.className = 'secao-oculta');
-  const secaoAtiva = document.getElementById(idSecao);
-  if (secaoAtiva) secaoAtiva.className = 'secao-visivel';
-  
-  // Carrega dados específicos quando a seção é mostrada
-  if (idSecao === 'secaoDashboard') {
-    carregarDashboard();
-  }
-}
-
-// Logout
-document.getElementById('logout').addEventListener('click', () => {
-  if (confirm('Deseja realmente sair?')) {
-    window.location.href = 'login.html'; // Ajuste para sua página de login
-  }
-});
-
-// Carregar produtos quando a página for carregada
-document.addEventListener('DOMContentLoaded', carregarProdutos);
 
 // document.addEventListener('DOMContentLoaded', () => {
 //   // Só carrega produtos se a tabela existir na página
