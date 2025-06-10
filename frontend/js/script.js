@@ -320,10 +320,7 @@ function atualizarTabela(produtos) {
     if (prod.vencimento) {
       const date = new Date(prod.vencimento);
       if (!isNaN(date.getTime())) {
-        // Ajusta para o timezone local antes de formatar
-        const offset = date.getTimezoneOffset() * 60000; // offset em milissegundos
-        const localDate = new Date(date.getTime() - offset);
-        dataFormatada = localDate.toISOString().split('T')[0].split('-').reverse().join('/');
+     dataFormatada = new Date(prod.vencimento).toLocaleDateString('pt-BR');
       }
     }
     
