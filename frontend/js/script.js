@@ -576,8 +576,21 @@ async function exportarProdutos() {
 async function importarProdutos() {
   const input = document.getElementById('arquivoImportacao');
   const file = input.files[0];
+  
   if (!file) {
     alert('Selecione um arquivo!');
+    return;
+  }
+
+  // Verificar tipo de arquivo
+  const tiposPermitidos = [
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+    'text/csv'
+  ];
+  
+  if (!tiposPermitidos.includes(file.type)) {
+    alert('Tipo de arquivo não suportado. Use arquivos .xlsx ou .csv');
     return;
   }
 
@@ -590,13 +603,29 @@ async function importarProdutos() {
       body: formData
     });
 
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.erro || 'Erro ao importar arquivo');
+    }
+
     const result = await res.json();
-    alert(result.message || 'Importação realizada!');
     
-    // Atualiza os produtos após importação
+    // Mostrar resultados detalhados
+    let message = `Importação concluída!\nProdutos importados: ${result.importados}`;
+    if (result.erros > 0) {
+      message += `\nErros encontrados: ${result.erros}\n\n`;
+      message += result.detalhesErros.join('\n');
+    }
+    
+    alert(message);
+    
+    // Atualiza a lista de produtos
     carregarProdutos();
+    
+    // Limpa o input de arquivo
+    input.value = '';
   } catch (error) {
-    alert('Erro ao importar produtos.');
-    console.error(error);
+    console.error('Erro na importação:', error);
+    alert(`Erro ao importar produtos: ${error.message}`);
   }
 }
