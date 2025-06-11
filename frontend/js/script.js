@@ -271,6 +271,7 @@ async function movimentarProduto(id, tipo, quantidade) {
     
     const produtoAtualizado = await response.json();
     
+    // Atualiza o cache local
     const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || []);
     const index = cachedProdutos.findIndex(p => p._id === id);
     if (index !== -1) {
@@ -278,6 +279,7 @@ async function movimentarProduto(id, tipo, quantidade) {
       localStorage.setItem('cachedProdutos', JSON.stringify(cachedProdutos));
     }
     
+    // Atualiza a tabela
     atualizarTabela(cachedProdutos);
     alert('Movimentação realizada com sucesso!');
     return true;
