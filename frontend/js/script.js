@@ -58,6 +58,15 @@ function atualizarTabela(produtos) {
   produtos.forEach(prod => {
     const tr = document.createElement('tr');
     
+    // Adiciona classes de alerta se necessário
+    const diasRestantes = calcularDiasRestantes(prod.vencimento);
+    if (diasRestantes >= 0 && diasRestantes < 10) {
+      tr.classList.add('alerta-vencimento');
+    }
+    if (prod.quantidade < 10) {
+      tr.classList.add('alerta-estoque');
+    }
+    
     tr.innerHTML = `
       <td>${prod.nome}</td>
       <td>${prod.quantidade ?? 0}</td>
@@ -69,6 +78,9 @@ function atualizarTabela(produtos) {
     `;
     tabela.appendChild(tr);
   });
+  
+  // Atualizar a zona crítica sempre que a tabela principal for atualizada
+  atualizarZonaCritica(produtos);
 }
 
 
@@ -446,4 +458,83 @@ async function importarProdutos() {
     alert('Erro ao importar produtos.');
     console.error(error);
   }
+}
+
+// Função para calcular dias restantes até o vencimento
+function calcularDiasRestantes(dataVencimento) {
+  if (!dataVencimento) return Infinity; // Retorna infinito se não houver data
+  
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  
+  const vencimento = new Date(dataVencimento);
+  vencimento.setHours(0, 0, 0, 0);
+  
+  const diffTime = vencimento - hoje;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  return diffDays;
+}
+
+// Função para atualizar a zona crítica
+function atualizarZonaCritica(produtos) {
+  const hoje = new Date();
+  
+  // Filtrar produtos que estão próximos do vencimento (menos de 10 dias)
+  const produtosVencendo = produtos.filter(produto => {
+    if (!produto.vencimento) return false;
+    const diasRestantes = calcularDiasRestantes(produto.vencimento);
+    return diasRestantes >= 0 && diasRestantes < 10;
+  });
+  
+  // Filtrar produtos com estoque baixo (menos de 10 unidades)
+  const produtosAcabando = produtos.filter(produto => {
+    return produto.quantidade < 10 && produto.quantidade > 0;
+  });
+  
+  // Atualizar a tabela de produtos vencendo
+  const tabelaVencendo = document.getElementById('tabelaVencendo').getElementsByTagName('tbody')[0];
+  tabelaVencendo.innerHTML = '';
+  
+  produtosVencendo.forEach(produto => {
+    const diasRestantes = calcularDiasRestantes(produto.vencimento);
+    const tr = document.createElement('tr');
+    
+    // Adiciona classe de alerta se faltar menos de 3 dias
+    if (diasRestantes < 3) {
+      tr.classList.add('alerta-urgente');
+    } else if (diasRestantes < 7) {
+      tr.classList.add('alerta-proximo');
+    }
+    
+    tr.innerHTML = `
+      <td>${produto.nome}</td>
+      <td>${produto.quantidade}</td>
+      <td>${formatarDataExibicao(produto.vencimento)}</td>
+      <td>${diasRestantes} dias</td>
+    `;
+    tabelaVencendo.appendChild(tr);
+  });
+  
+  // Atualizar a tabela de produtos acabando
+  const tabelaAcabando = document.getElementById('tabelaAcabando').getElementsByTagName('tbody')[0];
+  tabelaAcabando.innerHTML = '';
+  
+  produtosAcabando.forEach(produto => {
+    const tr = document.createElement('tr');
+    
+    // Adiciona classe de alerta se tiver menos de 3 unidades
+    if (produto.quantidade < 3) {
+      tr.classList.add('alerta-urgente');
+    } else if (produto.quantidade < 5) {
+      tr.classList.add('alerta-proximo');
+    }
+    
+    tr.innerHTML = `
+      <td>${produto.nome}</td>
+      <td>${produto.quantidade}</td>
+      <td>${formatarDataExibicao(produto.vencimento)}</td>
+    `;
+    tabelaAcabando.appendChild(tr);
+  });
 }

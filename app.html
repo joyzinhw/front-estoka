@@ -36,6 +36,10 @@
       <button onclick="mostrarSecao('secaoImportar')">IMPORTAR</button>
       <button onclick="mostrarSecao('secaoExportar')">EXPORTAR</button>
 
+      <h3>ZONA CRITICA</h3>
+      <button onclick="mostrarSecao('secaoVencendo')">VENCENDO</button>
+      <button onclick="mostrarSecao('secaoAcabando')">ACABANDO</button>
+
     <h3></h3>
 <button id="logout">SAIR</button>
 
@@ -103,6 +107,37 @@
         <h2>Exportar Produtos</h2>
         <button onclick="exportarProdutos()">BAIXAR PLANILHA</button>
       </section>
+
+      <!-- Seções da Zona Crítica -->
+<section id="secaoVencendo" class="secao-oculta">
+  <h2>Produtos próximos do vencimento (menos de 10 dias)</h2>
+  <table id="tabelaVencendo">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Quantidade</th>
+        <th>Vencimento</th>
+        <th>Dias Restantes</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
+<section id="secaoAcabando" class="secao-oculta">
+  <h2>Produtos com estoque baixo (menos de 10 unidades)</h2>
+  <table id="tabelaAcabando">
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Quantidade</th>
+        <th>Vencimento</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
     </main>
   </div>
 <script src="/frontend/js/script.js"></script>
