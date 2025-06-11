@@ -510,7 +510,6 @@ function atualizarZonaCritica(produtos) {
     tr.innerHTML = `
       <td>${produto.nome}</td>
       <td>${produto.quantidade}</td>
-      <td>${tipoExibicao}</td>
       <td>${formatarDataExibicao(produto.vencimento)}</td>
       <td>${diasRestantes} dias</td>
     `;
@@ -541,7 +540,6 @@ function atualizarZonaCritica(produtos) {
     tr.innerHTML = `
       <td>${prod.nome}</td>
       <td>${prod.quantidade}</td>
-      <td>${tipoExibicao}</td>
       <td>${formatarDataExibicao(prod.vencimento)}</td>
   
     `;
