@@ -51,6 +51,17 @@
         <div class="form">
         <input type="text" id="produtoNome" placeholder="Nome do produto">
         <input type="number" id="produtoQtd" placeholder="Quantidade inicial">
+        <select id="produtoTipo">
+        <option value="">Selecione o tipo</option>
+        <option value="UN">Unidade</option>
+        <option value="CX">Caixa</option>
+        <option value="FR">Frasco</option>
+        <option value="BL">Blister</option>
+        <option value="TB">Tubo</option>
+        <option value="MG">Miligrama</option>
+        <option value="ML">Mililitro</option>
+        <option value="G">Grama</option>
+      </select>
         <input type="date" id="produtoVencimento" placeholder="Data de vencimento">
         <button onclick="cadastrarProduto()">CADASTRAR</button>
         </div>
@@ -60,6 +71,7 @@
             <tr>
               <th>NOME</th>
               <th>QUANTIDADE</th>
+              <th>TIPO</th>
               <th>DATA DE VALIDADE</th>
               <th>AÇÕES</th>
             </tr>
