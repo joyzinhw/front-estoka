@@ -1,274 +1,3 @@
-// const apiURL = 'https://estoka.onrender.com/produtos';
-
-// const signUpButton = document.getElementById('signUpButton');
-// const signInButton = document.getElementById('signInButton');
-// const signInForm = document.getElementById('signIn');
-// const signUpForm = document.getElementById('signup');
-
-// signUpButton.addEventListener('click', function () {
-//   signInForm.style.display = "none";
-//   signUpForm.style.display = "block";
-// });
-// signInButton.addEventListener('click', function () {
-//   signInForm.style.display = "block";
-//   signUpForm.style.display = "none";
-// });
-
-// document.addEventListener('DOMContentLoaded', () => {
-//   // Só carrega produtos se a tabela existir na página
-//   if (document.getElementById('produtosTable')) {
-//     carregarProdutos();
-//   }
-// });
-
-// async function carregarProdutos() {
-//   try {
-//     const tabela = document.getElementById('produtosTable');
-//     if (!tabela) {
-//       // Se não existe tabela, não tenta carregar produtos
-//       return;
-//     }
-
-//     const res = await fetch(apiURL);
-//     const produtos = await res.json();
-
-//     tabela.innerHTML = '';
-
-//     produtos.forEach(prod => {
-//       const tr = document.createElement('tr');
-//       tr.innerHTML = `
-//         <td>${prod.nome}</td>
-//         <td>${prod.quantidade ?? 0}</td>
-//         <td>${prod.vencimento ? new Date(prod.vencimento).toISOString().slice(0, 10) : 'Sem data'}</td>
-//         <td><button onclick="deletarProduto('${prod._id}')">DELETAR</button></td>
-//       `;
-
-//       tabela.appendChild(tr);
-//     });
-//   } catch (error) {
-//     console.error('Erro ao carregar produtos:', error);
-//     alert('Erro ao carregar produtos.');
-//   }
-// }
-
-// async function cadastrarProduto() {
-//   const nome = document.getElementById('produtoNome').value.trim();
-//   const quantidade = parseInt(document.getElementById('produtoQtd').value);
-//   const vencimento = document.getElementById('produtoVencimento').value; // novo campo
-
-//   if (!nome || isNaN(quantidade) || quantidade < 0 || !vencimento) {
-//     alert('Preencha todos os campos corretamente! A data de vencimento é obrigatória.');
-//     return;
-//   }
-
-//   try {
-//     const res = await fetch(apiURL);
-//     const produtos = await res.json();
-//     const nomeExiste = produtos.some(p => p.nome.toLowerCase() === nome.toLowerCase());
-
-//     if (nomeExiste) {
-//       alert('Já existe um produto com esse nome!');
-//       return;
-//     }
-
-//     await fetch(apiURL, {
-//       method: 'POST',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ nome, quantidade, vencimento })
-//     });
-
-//     document.getElementById('produtoNome').value = '';
-//     document.getElementById('produtoQtd').value = '';
-//     document.getElementById('produtoVencimento').value = '';
-//     carregarProdutos();
-//   } catch (error) {
-//     console.error('Erro ao cadastrar produto:', error);
-//     alert('Erro ao cadastrar produto.');
-//   }
-// }
-
-
-// async function deletarProduto(id) {
-//   const confirmar = confirm('Tem certeza que deseja deletar este produto?');
-//   if (!confirmar) return;
-
-//   try {
-//     await fetch(`${apiURL}/${id}`, {
-//       method: 'DELETE'
-//     });
-//     carregarProdutos();
-//   } catch (error) {
-//     console.error('Erro ao deletar produto:', error);
-//     alert('Erro ao deletar produto.');
-//   }
-// }
-
-// async function movimentarProduto(id, tipo, quantidade) {
-//   if (!['entrada', 'saida'].includes(tipo) || isNaN(quantidade) || quantidade <= 0) {
-//     alert('Tipo ou quantidade inválida para movimentação!');
-//     return;
-//   }
-
-//   try {
-//     await fetch(`${apiURL}/${id}/movimentar`, {
-//       method: 'PUT',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({ tipo, quantidade })
-//     });
-//     carregarProdutos();
-//     alert('Movimentação realizada com sucesso!');
-//   } catch (error) {
-//     console.error('Erro ao movimentar produto:', error);
-//     alert('Erro ao movimentar produto.');
-//   }
-// }
-
-// async function buscarProdutoPorNome(nome) {
-//   try {
-//     const res = await fetch(apiURL);
-//     const produtos = await res.json();
-//     return produtos.find(p => p.nome.toLowerCase() === nome.toLowerCase());
-//   } catch (error) {
-//     console.error('Erro ao buscar produto:', error);
-//     alert('Erro ao buscar produto.');
-//     return null;
-//   }
-// }
-
-// async function executarMovimento(tipo) {
-//   const nome = document.getElementById('nomeProdutoMovimento').value.trim();
-//   const qtd = parseInt(document.getElementById('qtdMovimento').value);
-
-//   if (!nome || isNaN(qtd) || qtd <= 0) {
-//     alert('Informe o nome do produto e uma quantidade válida.');
-//     return;
-//   }
-
-//   const produto = await buscarProdutoPorNome(nome);
-//   if (!produto) {
-//     alert('Produto não encontrado.');
-//     return;
-//   }
-
-//   movimentarProduto(produto._id, tipo, qtd);
-
-//   document.getElementById('nomeProdutoMovimento').value = '';
-//   document.getElementById('qtdMovimento').value = '';
-// }
-
-// async function verHistorico(id) {
-//   try {
-//     const res = await fetch(`${apiURL}/${id}/historico`);
-//     const historico = await res.json();
-
-//     const lista = document.getElementById('listaHistorico');
-//     lista.innerHTML = '';
-
-//     if (historico.length === 0) {
-//       lista.innerHTML = '<li>Sem movimentações para este produto.</li>';
-//       return;
-//     }
-
-//     historico.forEach(item => {
-//       const li = document.createElement('li');
-//       li.textContent = `Tipo: ${item.tipo}, Quantidade: ${item.quantidade}, Data: ${new Date(item.data).toLocaleString()}`;
-//       lista.appendChild(li);
-//     });
-//   } catch (error) {
-//     console.error('Erro ao buscar histórico:', error);
-//     alert('Erro ao buscar histórico.');
-//   }
-// }
-
-// async function verHistoricoPorNome() {
-//   const nome = document.getElementById('nomeProdutoHistorico').value.trim();
-//   if (!nome) {
-//     alert('Informe o nome do produto.');
-//     return;
-//   }
-
-//   const produto = await buscarProdutoPorNome(nome);
-//   if (!produto) {
-//     alert('Produto não encontrado.');
-//     return;
-//   }
-
-//   verHistorico(produto._id);
-
-//   document.getElementById('nomeProdutoHistorico').value = '';
-// }
-
-// function mostrarSecao(idSecao) {
-//   const secoes = document.querySelectorAll('main > section');
-//   secoes.forEach(sec => sec.className = 'secao-oculta');
-//   const secaoAtiva = document.getElementById(idSecao);
-//   if (secaoAtiva) secaoAtiva.className = 'secao-visivel';
-// }
-
-// async function consultarSaldo() {
-//   const nomeBusca = document.getElementById('buscaNome').value.trim();
-//   const resultadoDiv = document.getElementById('resultadoSaldo');
-
-//   if (!nomeBusca) {
-//     resultadoDiv.innerHTML = '<p style="color: red;">Por favor, digite o nome do produto.</p>';
-//     return;
-//   }
-
-//   const produto = await buscarProdutoPorNome(nomeBusca);
-
-//   if (produto) {
-//     resultadoDiv.innerHTML = `
-//       <p>Produto: <strong>${produto.nome}</strong></p>
-//       <p>Quantidade em estoque: <strong>${produto.quantidade ?? 0}</strong></p>
-//     `;
-//   } else {
-//     resultadoDiv.innerHTML = '<p style="color: red;">Produto não encontrado.</p>';
-//   }
-// }
-
-// async function exportarProdutos() {
-//   try {
-//     const res = await fetch(`${apiURL}/exportar`);
-//     const blob = await res.blob();
-//     const url = window.URL.createObjectURL(blob);
-
-//     const a = document.createElement('a');
-//     a.href = url;
-//     a.download = 'produtos.xlsx';
-//     document.body.appendChild(a);
-//     a.click();
-//     a.remove();
-//   } catch (error) {
-//     alert('Erro ao exportar produtos.');
-//     console.error(error);
-//   }
-// }
-
-// async function importarProdutos() {
-//   const input = document.getElementById('arquivoImportacao');
-//   const file = input.files[0];
-//   if (!file) {
-//     alert('Selecione um arquivo!');
-//     return;
-//   }
-
-//   const formData = new FormData();
-//   formData.append('arquivo', file);
-
-//   try {
-//     const res = await fetch(`${apiURL}/importar`, {
-//       method: 'POST',
-//       body: formData
-//     });
-
-//     const result = await res.json();
-//     alert(result.message || 'Importação realizada!');
-//     carregarProdutos();
-//   } catch (error) {
-//     alert('Erro ao importar produtos.');
-//     console.error(error);
-//   }
-// }
 const apiURL = 'https://estoka.onrender.com/produtos';
 
 // Elementos do formulário de login/signup
@@ -305,7 +34,21 @@ function carregarProdutosDoCache() {
   }
 }
 
-// Função para atualizar a tabela com os produtos
+function formatarDataExibicao(dataString) {
+  if (!dataString) return 'Sem data';
+  
+  try {
+    const date = new Date(dataString);
+    if (isNaN(date.getTime())) return 'Data inválida';
+    
+    // Formata para DD/MM/AAAA
+    return date.toLocaleDateString('pt-BR');
+  } catch (error) {
+    console.error('Erro ao formatar data:', error);
+    return 'Data inválida';
+  }
+}
+
 function atualizarTabela(produtos) {
   const tabela = document.getElementById('produtosTable');
   if (!tabela) return;
@@ -315,27 +58,19 @@ function atualizarTabela(produtos) {
   produtos.forEach(prod => {
     const tr = document.createElement('tr');
     
-    // Formata a data para exibição
-    let dataFormatada = 'Sem data';
-    if (prod.vencimento) {
-      const date = new Date(prod.vencimento);
-      if (!isNaN(date.getTime())) {
-     dataFormatada = new Date(prod.vencimento).toLocaleDateString('pt-BR');
-      }
-    }
-    
     tr.innerHTML = `
       <td>${prod.nome}</td>
       <td>${prod.quantidade ?? 0}</td>
-      <td>${dataFormatada}</td>
+      <td>${formatarDataExibicao(prod.vencimento)}</td>
       <td>
-      <button onclick="deletarProduto('${prod._id}')">DELETAR</button>
-      <button onclick="editarProdutoPrompt('${prod._id}')">EDITAR</button>
+        <button onclick="deletarProduto('${prod._id}')">DELETAR</button>
+        <button onclick="editarProdutoPrompt('${prod._id}')">EDITAR</button>
       </td>
     `;
     tabela.appendChild(tr);
   });
 }
+
 
 async function carregarProdutos() {
   try {
@@ -359,46 +94,96 @@ async function carregarProdutos() {
 async function cadastrarProduto() {
   const nome = document.getElementById('produtoNome').value.trim();
   const quantidade = parseInt(document.getElementById('produtoQtd').value);
-  const vencimento = document.getElementById('produtoVencimento').value;
+  const vencimentoInput = document.getElementById('produtoVencimento').value;
 
-  if (!nome || isNaN(quantidade) || quantidade < 0 || !vencimento) {
-    alert('Preencha todos os campos corretamente! A data de vencimento é obrigatória.');
+  if (!nome || isNaN(quantidade) ){
+    alert('Preencha todos os campos corretamente!');
     return;
   }
 
   try {
-    const res = await fetch(apiURL);
-    const produtos = await res.json();
-    const nomeExiste = produtos.some(p => p.nome.toLowerCase() === nome.toLowerCase());
-
-    if (nomeExiste) {
-      alert('Já existe um produto com esse nome!');
-      return;
-    }
-
     const response = await fetch(apiURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nome, quantidade, vencimento })
+      body: JSON.stringify({ 
+        nome, 
+        quantidade, 
+        vencimento: vencimentoInput || null 
+      })
     });
 
-    const novoProduto = await response.json();
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.erro || 'Erro ao cadastrar produto');
+    }
 
-    // Atualiza o cache local com o novo produto
+    const novoProduto = await response.json();
+    
+    // Atualiza o cache e a tabela
     const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || '[]');
     cachedProdutos.push(novoProduto);
     localStorage.setItem('cachedProdutos', JSON.stringify(cachedProdutos));
-
+    
+    // Limpa os campos
     document.getElementById('produtoNome').value = '';
     document.getElementById('produtoQtd').value = '';
     document.getElementById('produtoVencimento').value = '';
     
-    // Atualiza a tabela
     atualizarTabela(cachedProdutos);
   } catch (error) {
     console.error('Erro ao cadastrar produto:', error);
-    alert('Erro ao cadastrar produto.');
+    alert(error.message);
   }
+}
+
+
+async function editarProdutoPrompt(id) {
+  const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos')) || '[]';
+  const produto = cachedProdutos.find(p => p._id === id);
+  
+  if (!produto) {
+    alert('Produto não encontrado.');
+    return;
+  }
+
+  // Converter a data para o formato do input type="date" (AAAA-MM-DD)
+  let dataAtual = '';
+  if (produto.vencimento) {
+    const date = new Date(produto.vencimento);
+    if (!isNaN(date.getTime())) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      dataAtual = `${year}-${month}-${day}`;
+    }
+  }
+
+  const novoNome = prompt('Editar nome do produto:', produto.nome);
+  if (novoNome === null) return;
+
+  const novaQtd = parseInt(prompt('Editar quantidade:', produto.quantidade));
+  if (isNaN(novaQtd)) {
+    alert('Quantidade deve ser um número válido.');
+    return;
+  }
+
+  const novoVenc = prompt('Editar data de validade (AAAA-MM-DD):', dataAtual);
+  if (novoVenc === null) return;
+
+  // Validar a data se foi informada
+  if (novoVenc) {
+    const date = new Date(novoVenc);
+    if (isNaN(date.getTime())) {
+      alert('Data inválida! Use o formato AAAA-MM-DD.');
+      return;
+    }
+  }
+
+  await atualizarProduto(id, {
+    nome: novoNome,
+    quantidade: novaQtd,
+    vencimento: novoVenc || null
+  });
 }
 
 async function deletarProduto(id) {
@@ -421,54 +206,6 @@ async function deletarProduto(id) {
     console.error('Erro ao deletar produto:', error);
     alert('Erro ao deletar produto.');
   }
-}
-
-async function editarProdutoPrompt(id) {
-  const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || '[]');
-  const produto = cachedProdutos.find(p => p._id === id);
-  if (!produto) {
-    alert('Produto não encontrado.');
-    return;
-  }
-
-  // Formata a data atual para exibição no prompt (DD/MM/AAAA)
-  const dataAtual = produto.vencimento ? 
-    new Date(produto.vencimento).toLocaleDateString('pt-BR') : '';
-
-  const novoNome = prompt('Editar nome do produto:', produto.nome);
-  if (novoNome === null) return;
-
-  const novaQtdStr = prompt('Editar quantidade:', produto.quantidade);
-  if (novaQtdStr === null) return;
-  
-  const novaQtd = parseInt(novaQtdStr);
-  if (isNaN(novaQtd)) {
-    alert('Quantidade deve ser um número válido.');
-    return;
-  }
-
-  const novoVenc = prompt('Editar data de validade (DD/MM/AAAA):', dataAtual);
-  if (novoVenc === null) return;
-
-  // Converte a data de DD/MM/AAAA para AAAA-MM-DD (formato ISO)
-  let vencimentoISO = null;
-  if (novoVenc) {
-    const [day, month, year] = novoVenc.split('/');
-    vencimentoISO = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-    
-    // Valida a data
-    const dateObj = new Date(vencimentoISO);
-    if (isNaN(dateObj.getTime())) {
-      alert('Data inválida! Use o formato DD/MM/AAAA.');
-      return;
-    }
-  }
-
-  await atualizarProduto(id, { 
-    nome: novoNome, 
-    quantidade: novaQtd, 
-    vencimento: vencimentoISO 
-  });
 }
 
 async function atualizarProduto(id, dadosAtualizados) {
