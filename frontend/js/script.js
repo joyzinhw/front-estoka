@@ -545,6 +545,6 @@ function atualizarZonaCritica(produtos) {
     tabela.appendChild(tr);
   });
 
-  const secao = document.getElementById('secaoAcabando');
-  secao.classList.toggle('secao-oculta', produtosCriticos.length === 0);
+  // const secao = document.getElementById('secaoAcabando');
+  // secao.classList.toggle('secao-oculta', produtosCriticos.length === 0);
 }
