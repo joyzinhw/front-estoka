@@ -516,23 +516,35 @@ function atualizarZonaCritica(produtos) {
     tabelaVencendo.appendChild(tr);
   });
   
-  const tabelaAcabando = document.getElementById('tabelaAcabando').getElementsByTagName('tbody')[0];
-  tabelaAcabando.innerHTML = '';
-  
-  produtosAcabando.forEach(produto => {
-    const tr = document.createElement('tr');
-    
-    if (produto.quantidade < 3) {
-      tr.classList.add('alerta-urgente');
-    } else if (produto.quantidade < 5) {
-      tr.classList.add('alerta-proximo');
-    }
-    
-    tr.innerHTML = `
-      <td>${produto.nome}</td>
-      <td>${produto.quantidade}</td>
-      <td>${formatarDataExibicao(produto.vencimento)}</td>
-    `;
-    tabelaAcabando.appendChild(tr);
+  const tabela = document.getElementById('tabelaAcabando').querySelector('tbody');
+  if (!tabela) return;
+
+  tabela.innerHTML = '';
+
+  const limitesCriticos = {
+    'UN': 10,
+    'CX': 5,
+    'FR': 10,
+    'TB': 5,
+    'BL': 5
+    // Você pode incluir mais se quiser
+  };
+
+  const produtosCriticos = produtos.filter(prod => {
+    const limite = limitesCriticos[prod.tipo] ?? 0;
+    return prod.quantidade <= limite;
   });
+
+  produtosCriticos.forEach(prod => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${prod.nome}</td>
+      <td>${prod.quantidade}</td>
+      <td>${formatarDataExibicao(prod.vencimento)}</td>
+    `;
+    tabela.appendChild(tr);
+  });
+
+  const secao = document.getElementById('secaoAcabando');
+  secao.classList.toggle('secao-oculta', produtosCriticos.length === 0);
 }
