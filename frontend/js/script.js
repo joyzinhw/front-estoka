@@ -27,10 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
 function carregarProdutosDoCache() {
   const cachedProdutos = localStorage.getItem('cachedProdutos');
   if (cachedProdutos) {
-    const produtos = JSON.parse(cachedProdutos);
-    atualizarTabela(produtos);
+    try {
+      const produtos = JSON.parse(cachedProdutos);
+      if (Array.isArray(produtos)) {
+        atualizarTabela(produtos);
+      } else {
+        console.warn('cachedProdutos não é um array:', produtos);
+        localStorage.removeItem('cachedProdutos'); // remove dados inválidos
+      }
+    } catch (e) {
+      console.error('Erro ao fazer parse do cache:', e);
+      localStorage.removeItem('cachedProdutos'); // também remove caso o JSON esteja corrompido
+    }
   }
 }
+
 
 function formatarDataExibicao(dataString) {
   if (!dataString) return 'Sem data';
