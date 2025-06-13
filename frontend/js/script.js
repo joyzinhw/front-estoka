@@ -526,7 +526,9 @@ function atualizarZonaCritica(produtos) {
     'CX': 5,
     'FR': 10,
     'TB': 5,
-    'BL': 5
+    'BL': 5,
+    "LT":  5,
+    "PARES": 5
     // Você pode incluir mais se quiser
   };
 
