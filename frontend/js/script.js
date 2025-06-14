@@ -1,5 +1,7 @@
 const apiURL = 'https://estoka.onrender.com/produtos';
 
+
+
 const tipos = {
   'UN': 'Unidade',
   'CX': 'Caixa',
@@ -12,6 +14,7 @@ const tipos = {
   'PARES': 'Pares',
   'LT': 'Litro'
 };
+
 
 // Elementos do formulário
 const signUpButton = document.getElementById('signUpButton');
@@ -125,7 +128,7 @@ async function carregarProdutos() {
 async function cadastrarProduto() {
   const nome = document.getElementById('produtoNome').value.trim();
   const quantidade = parseInt(document.getElementById('produtoQtd').value);
-  const tipo = document.getElementById('produtoTipo').value;
+  const tipo = document.getElementById('produtoTipo').value.toUpperCase(); // Garante maiúsculas
   const vencimentoInput = document.getElementById('produtoVencimento').value;
 
   if (!nome || isNaN(quantidade) || !tipo) {
