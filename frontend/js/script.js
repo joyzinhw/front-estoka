@@ -474,20 +474,21 @@ async function importarProdutos() {
 function calcularDiasRestantes(dataVencimento) {
   if (!dataVencimento) return Infinity;
   
-  // Cria datas sem horas/minutos/segundos (meia-noite UTC)
+  // Cria a data atual sem horas/minutos/segundos
   const hoje = new Date();
-  const hojeUTC = new Date(Date.UTC(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()));
+  hoje.setHours(0, 0, 0, 0);
   
+  // Cria a data de vencimento sem horas/minutos/segundos
   const vencimento = new Date(dataVencimento);
-  const vencimentoUTC = new Date(Date.UTC(vencimento.getFullYear(), vencimento.getMonth(), vencimento.getDate()));
+  vencimento.setHours(0, 0, 0, 0);
   
   // Calcula diferença em milissegundos
-  const diffTime = vencimentoUTC - hojeUTC;
+  const diffTime = vencimento - hoje;
   
   // Converte para dias (arredondando para baixo)
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   
-  // Garante que não retorne negativo para produtos já vencidos
+  // Retorna 0 se já estiver vencido, ou os dias restantes
   return diffDays >= 0 ? diffDays : 0;
 }
 
@@ -524,7 +525,7 @@ function atualizarZonaCritica(produtos) {
       <td>${produto.quantidade}</td>
       <td>${tipoExibicao}</td>
       <td>${formatarDataExibicao(produto.vencimento)}</td>
-      <td>${diasRestantes} dias</td>
+      <td>${diasRestantes === 0 ? 'Vence hoje' : `${diasRestantes} dias`}</td>
     `;
     tabelaVencendo.appendChild(tr);
   });
