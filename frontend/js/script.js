@@ -125,30 +125,12 @@ async function carregarProdutos() {
 async function cadastrarProduto() {
   const nome = document.getElementById('produtoNome').value.trim();
   const quantidade = parseInt(document.getElementById('produtoQtd').value);
-  const tipoDisplay = document.getElementById('produtoTipo').value; // Valor exibido (como "Litro")
+  const tipo = document.getElementById('produtoTipo').value.toUpperCase(); // Garante maiúsculas
   const vencimentoInput = document.getElementById('produtoVencimento').value;
 
-  if (!nome || isNaN(quantidade) || !tipoDisplay) {
+  if (!nome || isNaN(quantidade) || !tipo) {
     alert('Preencha todos os campos corretamente!');
     return;
-  }
-
-  // Converter o tipo exibido de volta para o código
-  let tipoCodigo = 'UN'; // padrão
-  for (const [codigo, display] of Object.entries(tipos)) {
-    if (display === tipoDisplay) {
-      tipoCodigo = codigo;
-      break;
-    }
-  }
-
-  // Formatar a data para o padrão AAAA-MM-DD
-  let vencimentoFormatado = null;
-  if (vencimentoInput) {
-    const partesData = vencimentoInput.split('/');
-    if (partesData.length === 3) {
-      vencimentoFormatado = `${partesData[2]}-${partesData[1]}-${partesData[0]}`;
-    }
   }
 
   try {
@@ -158,8 +140,8 @@ async function cadastrarProduto() {
       body: JSON.stringify({ 
         nome, 
         quantidade, 
-        tipo: tipoCodigo, // Envia o código (LT) em vez do nome exibido (Litro)
-        vencimento: vencimentoFormatado 
+        tipo,
+        vencimento: vencimentoInput || null 
       })
     });
 
@@ -174,7 +156,6 @@ async function cadastrarProduto() {
     cachedProdutos.push(novoProduto);
     localStorage.setItem('cachedProdutos', JSON.stringify(cachedProdutos));
 
-    // Limpar campos
     document.getElementById('produtoNome').value = '';
     document.getElementById('produtoQtd').value = '';
     document.getElementById('produtoTipo').value = 'UN';
