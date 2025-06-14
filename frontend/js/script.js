@@ -8,11 +8,8 @@ const tipos = {
   'FR': 'Frasco',
   'BL': 'Blister',
   'TB': 'Tubo',
-  'MG': 'Miligrama',
-  'ML': 'Mililitro',
-  'G': 'Grama',
-  'PARES': 'Pares',
-  'LT': 'Litro'
+  'LT': 'Litro',
+  'PARES': 'Pares'
 };
 
 
@@ -200,7 +197,7 @@ async function editarProdutoPrompt(id) {
     return;
   }
 
-  const novoTipo = prompt('Editar tipo do produto (UN, CX, FR, BL, TB, MG, ML, G, LT):', produto.tipo || 'UN');
+  const novoTipo = prompt('Editar tipo do produto (UN, CX, FR, BL, TB, LT, PARES):', produto.tipo || 'UN');
   if (novoTipo === null) return;
 
   const novoVenc = prompt('Editar data de validade (AAAA-MM-DD):', dataAtual);
@@ -542,10 +539,10 @@ function atualizarZonaCritica(produtos) {
     'UN': 10,
     'CX': 5,
     'FR': 10,
-    'TB': 5,
     'BL': 5,
-    "LT":  5,
-    "PARES": 5
+    'TB': 5,
+    'LT':  5,
+    'PARES': 5
     // Você pode incluir mais se quiser
   };
 
