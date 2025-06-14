@@ -474,16 +474,19 @@ async function importarProdutos() {
 function calcularDiasRestantes(dataVencimento) {
   if (!dataVencimento) return Infinity;
   
+  // Cria datas sem horas/minutos/segundos
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
   
   const vencimento = new Date(dataVencimento);
   vencimento.setHours(0, 0, 0, 0);
   
+  // Calcula diferença em dias
   const diffTime = vencimento - hoje;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
   
-  return diffDays;
+  // Garante que não retorne negativo para produtos já vencidos
+  return diffDays >= 0 ? diffDays : 0;
 }
 
 function atualizarZonaCritica(produtos) {
