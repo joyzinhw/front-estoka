@@ -1,5 +1,18 @@
 const apiURL = 'https://estoka.onrender.com/produtos';
 
+const tipos = {
+  'UN': 'Unidade',
+  'CX': 'Caixa',
+  'FR': 'Frasco',
+  'BL': 'Blister',
+  'TB': 'Tubo',
+  'MG': 'Miligrama',
+  'ML': 'Mililitro',
+  'G': 'Grama',
+  'PARES': 'Pares',
+  'LT': 'Litro',
+};
+
 // Elementos do formulário
 const signUpButton = document.getElementById('signUpButton');
 const signInButton = document.getElementById('signInButton');
@@ -61,20 +74,6 @@ function atualizarTabela(produtos) {
   if (!tabela) return;
 
   tabela.innerHTML = '';
-
-  // Mapear códigos de tipo para nomes amigáveis
-  const tipos = {
-    'UN': 'Unidade',
-    'CX': 'Caixa',
-    'FR': 'Frasco',
-    'BL': 'Blister',
-    'TB': 'Tubo',
-    'MG': 'Miligrama',
-    'ML': 'Mililitro',
-    'G': 'Grama'  ,
-    'PARES': 'Pares',
-    'LT': 'Litro',
-  };
 
   produtos.forEach(prod => {
     const tr = document.createElement('tr');
@@ -194,7 +193,7 @@ async function editarProdutoPrompt(id) {
     return;
   }
 
-  const novoTipo = prompt('Editar tipo do produto (UN, CX, FR, BL, TB, MG, ML, G):', produto.tipo || 'UN');
+  const novoTipo = prompt('Editar tipo do produto (UN, CX, FR, BL, TB, MG, ML, G, LT):', produto.tipo || 'UN');
   if (novoTipo === null) return;
 
   const novoVenc = prompt('Editar data de validade (AAAA-MM-DD):', dataAtual);
