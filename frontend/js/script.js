@@ -62,7 +62,11 @@ function formatarDataExibicao(dataString) {
   try {
     const date = new Date(dataString);
     if (isNaN(date.getTime())) return 'Data inválida';
-    return date.toLocaleDateString('pt-BR');
+    
+    // Ajusta para compensar o fuso horário
+    const adjustedDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+    
+    return adjustedDate.toLocaleDateString('pt-BR');
   } catch (error) {
     console.error('Erro ao formatar data:', error);
     return 'Data inválida';
