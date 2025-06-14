@@ -10,7 +10,7 @@ const tipos = {
   'ML': 'Mililitro',
   'G': 'Grama',
   'PARES': 'Pares',
-  'LT': 'Litro',
+  'LT': 'Litro'
 };
 
 // Elementos do formulário
