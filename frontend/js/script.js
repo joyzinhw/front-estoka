@@ -474,16 +474,18 @@ async function importarProdutos() {
 function calcularDiasRestantes(dataVencimento) {
   if (!dataVencimento) return Infinity;
   
-  // Cria datas sem horas/minutos/segundos
+  // Cria datas sem horas/minutos/segundos (meia-noite UTC)
   const hoje = new Date();
-  hoje.setHours(0, 0, 0, 0);
+  const hojeUTC = new Date(Date.UTC(hoje.getFullYear(), hoje.getMonth(), hoje.getDate()));
   
   const vencimento = new Date(dataVencimento);
-  vencimento.setHours(0, 0, 0, 0);
+  const vencimentoUTC = new Date(Date.UTC(vencimento.getFullYear(), vencimento.getMonth(), vencimento.getDate()));
   
-  // Calcula diferença em dias
-  const diffTime = vencimento - hoje;
-  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+  // Calcula diferença em milissegundos
+  const diffTime = vencimentoUTC - hojeUTC;
+  
+  // Converte para dias (arredondando para baixo)
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   
   // Garante que não retorne negativo para produtos já vencidos
   return diffDays >= 0 ? diffDays : 0;
