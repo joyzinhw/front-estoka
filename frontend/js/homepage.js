@@ -20,7 +20,7 @@ document.getElementById("logout").addEventListener("click", () => {
   signOut(auth)
     .then(() => {
       localStorage.removeItem("loggedInUserId");
-      window.location.href = "index.html"; // Redireciona após sair
+      window.location.href = "https://estokkaa.netlify.app/index.html"; // Redireciona após sair
     })
     .catch((error) => {
       console.error("Erro ao sair:", error);

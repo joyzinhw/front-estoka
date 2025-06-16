@@ -1,7 +1,5 @@
 const apiURL = 'https://estoka.onrender.com/produtos';
 
-
-
 const tipos = {
   'UN': 'Unidade',
   'CX': 'Caixa',
@@ -25,6 +23,59 @@ if (signUpButton && signInButton) {
     signInForm.style.display = "block";
     signUpForm.style.display = "none";
   });
+}
+
+async function getFirebaseToken() {
+  try {
+    const user = getAuth().currentUser;
+    if (!user) {
+      await logout(); // Força logout se não houver usuário
+      return null;
+    }
+    
+    const token = await user.getIdToken();
+    return token;
+  } catch (error) {
+    console.error('Erro ao obter token:', error);
+    await logout();
+    return null;
+  }
+}
+
+// Função para fazer chamadas API autenticadas
+async function makeAuthenticatedRequest(url, options = {}) {
+  const token = await getFirebaseToken();
+  if (!token) {
+    throw new Error('Não autenticado');
+  }
+
+  const defaultHeaders = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  };
+
+  const mergedOptions = {
+    ...options,
+    headers: {
+      ...defaultHeaders,
+      ...options.headers
+    }
+  };
+
+  const response = await fetch(url, mergedOptions);
+
+  if (response.status === 401) {
+    // Token expirado ou inválido
+    await logout();
+    throw new Error('Sessão expirada');
+  }
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Erro na requisição');
+  }
+
+  return response;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -110,63 +161,47 @@ function atualizarTabela(produtos) {
 
 async function carregarProdutos() {
   try {
-    const tabela = document.getElementById('produtosTable');
-    if (!tabela) return;
-
-    const res = await fetch(apiURL);
-    const produtos = await res.json();
+    const response = await makeAuthenticatedRequest(apiURL);
+    const produtos = await response.json();
 
     localStorage.setItem('cachedProdutos', JSON.stringify(produtos));
     atualizarTabela(produtos);
   } catch (error) {
-    console.error('Erro ao carregar produtos:', error);
+    console.error('Erro ao carregar produtos:', error.message);
+    alert(error.message);
   }
 }
 
 async function cadastrarProduto() {
   const nome = document.getElementById('produtoNome').value.trim();
   const quantidade = parseInt(document.getElementById('produtoQtd').value);
-  const tipo = document.getElementById('produtoTipo').value.toUpperCase(); // Garante maiúsculas
+  const tipo = document.getElementById('produtoTipo').value.toUpperCase();
   const vencimentoInput = document.getElementById('produtoVencimento').value;
 
-  console.log('Dados sendo enviados:', { 
-    nome, 
-    quantidade, 
-    tipo,
-    vencimento: vencimentoInput || null 
-  });
-
-  if (!nome || isNaN(quantidade) || !tipo) {
+  if (!nome || isNaN(quantidade)) {
     alert('Preencha todos os campos corretamente!');
     return;
   }
 
   try {
-  const response = await fetch(apiURL, {
-    method: 'POST',
-    headers: { 
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify({ 
-      nome, 
-      quantidade, 
-      tipo,
-      vencimento: vencimentoInput || null 
-    })
-  });
+    const response = await makeAuthenticatedRequest(apiURL, {
+      method: 'POST',
+      body: JSON.stringify({ 
+        nome, 
+        quantidade, 
+        tipo,
+        vencimento: vencimentoInput || null 
+      })
+    });
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('Detalhes do erro do servidor:', error); // Adicione esta linha
-      throw new Error(error.error || 'Erro ao cadastrar produto');
-    }
     const novoProduto = await response.json();
     
-    const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || '[]');
+    // Atualiza cache local
+    const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || []);
     cachedProdutos.push(novoProduto);
     localStorage.setItem('cachedProdutos', JSON.stringify(cachedProdutos));
 
+    // Limpa formulário
     document.getElementById('produtoNome').value = '';
     document.getElementById('produtoQtd').value = '';
     document.getElementById('produtoTipo').value = 'UN';
@@ -174,7 +209,7 @@ async function cadastrarProduto() {
 
     atualizarTabela(cachedProdutos);
   } catch (error) {
-    console.error('Erro ao cadastrar produto:', error);
+    console.error('Erro ao cadastrar produto:', error.message);
     alert(error.message);
   }
 }
@@ -235,18 +270,19 @@ async function deletarProduto(id) {
   if (!confirmar) return;
 
   try {
-    await fetch(`${apiURL}/${id}`, {
+    await makeAuthenticatedRequest(`${apiURL}/${id}`, {
       method: 'DELETE'
     });
     
+    // Atualiza cache local
     const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || []);
     const novosProdutos = cachedProdutos.filter(p => p._id !== id);
     localStorage.setItem('cachedProdutos', JSON.stringify(novosProdutos));
     
     atualizarTabela(novosProdutos);
   } catch (error) {
-    console.error('Erro ao deletar produto:', error);
-    alert('Erro ao deletar produto.');
+    console.error('Erro ao deletar produto:', error.message);
+    alert(error.message);
   }
 }
 
@@ -280,25 +316,15 @@ async function atualizarProduto(id, dadosAtualizados) {
 }
 
 async function movimentarProduto(id, tipo, quantidade) {
-  if (!['entrada', 'saida'].includes(tipo) || isNaN(quantidade) || quantidade <= 0) {
-    alert('Tipo ou quantidade inválida para movimentação!');
-    return;
-  }
-
   try {
-    const response = await fetch(`${apiURL}/${id}/movimentar`, {
+    const response = await makeAuthenticatedRequest(`${apiURL}/${id}/movimentar`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ tipo, quantidade })
     });
     
-    if (!response.ok) {
-      throw new Error('Erro na resposta do servidor');
-    }
-    
     const produtoAtualizado = await response.json();
     
-    // Atualiza o cache local
+    // Atualiza cache local
     const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || []);
     const index = cachedProdutos.findIndex(p => p._id === id);
     if (index !== -1) {
@@ -306,13 +332,11 @@ async function movimentarProduto(id, tipo, quantidade) {
       localStorage.setItem('cachedProdutos', JSON.stringify(cachedProdutos));
     }
     
-    // Atualiza a tabela
     atualizarTabela(cachedProdutos);
-    alert('Movimentação realizada com sucesso!');
     return true;
   } catch (error) {
-    console.error('Erro ao movimentar produto:', error);
-    alert(`Erro ao movimentar produto: ${error.message}`);
+    console.error('Erro ao movimentar produto:', error.message);
+    alert(error.message);
     return false;
   }
 }
@@ -439,8 +463,8 @@ async function consultarSaldo() {
 
 async function exportarProdutos() {
   try {
-    const res = await fetch(`${apiURL}/exportar`);
-    const blob = await res.blob();
+    const response = await makeAuthenticatedRequest(`${apiURL}/exportar`);
+    const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
 
     const a = document.createElement('a');
@@ -450,7 +474,7 @@ async function exportarProdutos() {
     a.click();
     a.remove();
   } catch (error) {
-    alert('Erro ao exportar produtos.');
+    alert(error.message);
     console.error(error);
   }
 }
@@ -458,29 +482,40 @@ async function exportarProdutos() {
 async function importarProdutos() {
   const input = document.getElementById('arquivoImportacao');
   const file = input.files[0];
+  
   if (!file) {
     alert('Selecione um arquivo!');
     return;
   }
 
+  const token = await getFirebaseToken();
+  if (!token) return;
+
   const formData = new FormData();
   formData.append('arquivo', file);
 
   try {
-    const res = await fetch(`${apiURL}/importar`, {
+    const response = await fetch(`${apiURL}/importar`, {
       method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
       body: formData
     });
 
-    const result = await res.json();
+    if (!response.ok) {
+      throw new Error('Erro na importação');
+    }
+
+    const result = await response.json();
     alert(result.message || 'Importação realizada!');
-    
     carregarProdutos();
   } catch (error) {
-    alert('Erro ao importar produtos.');
+    alert(error.message);
     console.error(error);
   }
 }
+
 
 function calcularDiasRestantes(dataVencimento) {
   if (!dataVencimento) return Infinity;
