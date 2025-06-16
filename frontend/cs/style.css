@@ -1,214 +1,234 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  background: #fff;
+    background-color: #ffffff;
+    background: #fff;
 }
 
 header {
-  display: flex;
-  align-items: center;
-  padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
-  justify-content: space-between;
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    justify-content: space-between;
 }
 
 .logo {
-  width: 80px;
-  height: 80px;
+    width: 80px;
+    height: 80px;
+        display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
-  background: #000000;
-  border-radius: 50%;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #000000;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Container principal */
 .container {
-  display: flex;
+    background: #fff;
+    width: 550px;
+    padding: 1.5rem;
+    margin: 150px auto;
+    border-radius: 10px;
+    box-shadow: 0 20px 35px rgba(0, 0, 1, 0.9);
 }
 
-nav {
-  width: 200px;
-  padding: 20px;
-  border-right: 1px solid #ddd;
+form {
+    margin: 0 2rem;
 }
 
-nav h3 {
-  color: #000000;
-  font-size: 12px;
-  margin-top: 20px;
+.form-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 1.3rem;
+    margin-bottom: 0.4rem;
 }
 
-/* Nav buttons padronizados */
-nav button {
-  height: 36px;
-  line-height: 36px;
-  padding: 0 12px;
-  font-size: 14px;
-  border-radius: 5px;
-  border: none;
-  background: none;
-  color: #303030;
-  cursor: pointer;
-  text-align: left;
-  width: 100%;
-  box-sizing: border-box;
-  margin: 10px 0;
+.input-group {
+    padding: 1% 0;
+    position: relative;
 }
 
-nav button:hover {
-  background: #e5eaf2;
+.input-group i {
+    position: absolute;
+    color: black;
 }
 
-/* Botão ativo no nav */
-nav .active {
-  background: #e5eaf2;
-  color: #555;
-  border-radius: 5px;
+input {
+    color: inherit;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #757575;
+    padding-left: 1.5rem;
+    font-size: 15px;
 }
 
-main {
-  flex: 1;
-  padding: 20px;
+input:focus {
+    background-color: transparent;
+    outline: transparent;
+    border-bottom: 2px solid hsl(327, 90%, 28%);
 }
 
-/* Form container com flexbox e espaçamento */
-.form {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+input::placeholder {
+    color: transparent;
 }
 
-/* Inputs e botões padronizados */
-input, button {
-  height: 36px;           /* altura fixa */
-  line-height: 36px;      /* texto centralizado verticalmente */
-  padding: 0 12px;        /* espaçamento horizontal */
-  font-size: 14px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  vertical-align: middle;
-  font-family: Arial, sans-serif;
-  cursor: pointer;
+label {
+    color: #757575;
+    position: relative;
+    left: 1.2em;
+    top: -1.3em;
+    cursor: auto;
+    transition: 0.3s ease all;
 }
 
-/* Inputs flexíveis para preencher o espaço */
-input[type="text"], input[type="number"] {
-  flex: 1 1 auto;
-  min-width: 0;
+input:focus ~ label,
+input:not(:placeholder-shown) ~ label {
+    top: -3em;
+    color: hsl(327, 90%, 28%);
+    font-size: 15px;
 }
 
-/* Botões com fundo e cor */
+.recover {
+    text-align: right;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.recover a {
+    text-decoration: none;
+    color: rgb(125, 125, 235);
+}
+
+.recover a:hover {
+    color: blue;
+    text-decoration: underline;
+}
+
 button {
-  background-color: #e5eaf2;
-  color: #303030;
-  border: none;
-  transition: background-color 0.3s ease;
+    font-size: 1.1rem;
+    padding: 8px 0;
+    border-radius: 5px;
+    outline: none;
+    border: none;
+    width: 100%;
+    background: rgb(125, 125, 235);
+    color: white;
+    cursor: pointer;
+    transition: 0.9s;
 }
 
 button:hover {
-  background-color: #cdd6e0;
+    background: #07001f;
 }
 
-/* Botão delete com estilo específico */
-button.delete {
-  background: #f8d7da;
-  color: red;
-  border: none;
-  padding: 0 12px;
-  height: 36px;
-  line-height: 36px;
-  border-radius: 5px;
-  cursor: pointer;
+.or {
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+    text-align: center;
 }
 
-table {
-  width: 100%;
-  margin-top: 20px;
-  border-collapse: collapse;
-}
-
-th {
-  text-align: left;
-  color: #303030;
-  border-radius: 5px;
-}
-
-td {
-  padding: 10px 0;
-}
-
-.secao-oculta {
-  display: none;
-}
-
-.secao-visivel {
-  display: block;
-}
-
-#resultadoSaldo {
-  margin-top: 10px;
-  font-weight: bold;
-}
-
-#listaHistorico {
-  margin-top: 10px;
-  padding-left: 20px;
-}
-
-/* Estilo para o select do tipo de produto */
-select#produtoTipo {
-  height: 36px;
-  line-height: 36px;
-  padding: 0 12px;
-  font-size: 14px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
-  background-color: #fff;
-  color: #303030;
-  cursor: pointer;
-  appearance: none; /* remove o estilo nativo (pode personalizar o ícone) */
-  background-image: url("data:image/svg+xml;utf8,<svg fill='%23303030' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-}
-
-/* Responsivo: ocupa toda a largura se necessário */
-@media (max-width: 768px) {
-  select#produtoTipo {
-    width: 100%;
-  }
-}
-
-
-/* Responsividade */
-@media (max-width: 768px) {
-  .form {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  input, button {
-    width: 100%;
-    box-sizing: border-box;
-  }
-  nav {
+/* ÍCONES AJUSTADOS E CENTRALIZADOS */
+.icons {
     display: flex;
+    justify-content: center;
+    align-items: center;
     flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 1rem;
+}
+
+.icons i {
+    color: rgb(125, 125, 235);
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border: 2px solid #dfe9f5;
+    transition: 0.3s;
+}
+
+.icons i:hover {
+    background: #07001f;
+    font-size: 1.6rem;
+    border: 2px solid rgb(125, 125, 235);
+}
+
+.links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     gap: 10px;
-  }
-  nav button {
-    flex: 1 1 45%;
-    height: 36px;
-    line-height: 36px;
-  }
+    flex-wrap: wrap;
+    margin-top: 0.8rem;
+    font-weight: bold;
+}
+
+#signUpButton,
+#signInButton {
+    color: rgb(125, 125, 235);
+    border: none;
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#signUpButton:hover,
+#signInButton:hover {
+    text-decoration: underline;
+    color: blue;
+}
+
+.messageDiv {
+    background-color: hsl(327, 90%, 28%);
+    color: white;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    font-size: 1rem;
+    opacity: 0;
+    animation: fadeOut 7s forwards;
+}
+
+#produtosTable td:first-child {
+  text-align: right;
+  padding-right: 5px;
+  width: 30px;
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        margin: 80px auto;
+        padding: 1rem;
+    }
+
+    .form-title {
+        font-size: 1.3rem;
+    }
+
+    input {
+        font-size: 14px;
+    }
+
+    .icons i {
+        font-size: 1.3rem;
+        padding: 0.5rem 1rem;
+    }
 }
