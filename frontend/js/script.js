@@ -5,9 +5,6 @@ const apiURL = 'https://estoka.onrender.com/produtos';
 const tipos = {
   'UN': 'Unidade',
   'CX': 'Caixa',
-  'FR': 'Frasco',
-  'BL': 'Blister',
-  'TB': 'Tubo',
   'LT': 'Litro',
   'PARES': 'Pares'
 };
@@ -207,7 +204,7 @@ async function editarProdutoPrompt(id) {
     return;
   }
 
-  const novoTipo = prompt('Editar tipo do produto (UN, CX, FR, BL, TB, LT, PARES):', produto.tipo || 'UN');
+  const novoTipo = prompt('Editar tipo do produto (UN, CX, LT, PARES):', produto.tipo || 'UN');
   if (novoTipo === null) return;
 
   const novoVenc = prompt('Editar data de validade (AAAA-MM-DD):', dataAtual);
@@ -548,9 +545,6 @@ function atualizarZonaCritica(produtos) {
   const limitesCriticos = {
     'UN': 10,
     'CX': 5,
-    'FR': 10,
-    'BL': 5,
-    'TB': 5,
     'LT':  5,
     'PARES': 5
     // Você pode incluir mais se quiser
