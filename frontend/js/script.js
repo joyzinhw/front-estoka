@@ -76,6 +76,9 @@ function atualizarTabela(produtos) {
 
   tabela.innerHTML = '';
 
+  // Adiciona um contador começando em 1
+  let contador = 1;
+
   produtos.forEach(prod => {
     const tr = document.createElement('tr');
     const diasRestantes = calcularDiasRestantes(prod.vencimento);
@@ -88,7 +91,9 @@ function atualizarTabela(produtos) {
       tr.classList.add('alerta-estoque');
     }
     
+    // Adiciona o número ordenado na primeira coluna
     tr.innerHTML = `
+      <td>${contador}.</td>
       <td>${prod.nome}</td>
       <td>${prod.quantidade ?? 0}</td>
       <td>${tipoExibicao}</td>
@@ -99,6 +104,7 @@ function atualizarTabela(produtos) {
       </td>
     `;
     tabela.appendChild(tr);
+    contador++; // Incrementa o contador para o próximo produto
   });
   
   atualizarZonaCritica(produtos);
