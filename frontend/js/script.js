@@ -128,6 +128,13 @@ async function cadastrarProduto() {
   const tipo = document.getElementById('produtoTipo').value.toUpperCase(); // Garante maiúsculas
   const vencimentoInput = document.getElementById('produtoVencimento').value;
 
+  console.log('Dados sendo enviados:', { 
+    nome, 
+    quantidade, 
+    tipo,
+    vencimento: vencimentoInput || null 
+  });
+
   if (!nome || isNaN(quantidade) || !tipo) {
     alert('Preencha todos os campos corretamente!');
     return;
