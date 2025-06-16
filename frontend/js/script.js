@@ -141,22 +141,25 @@ async function cadastrarProduto() {
   }
 
   try {
-    const response = await fetch(apiURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        nome, 
-        quantidade, 
-        tipo,
-        vencimento: vencimentoInput || null 
-      })
-    });
+  const response = await fetch(apiURL, {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({ 
+      nome, 
+      quantidade, 
+      tipo,
+      vencimento: vencimentoInput || null 
+    })
+  });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.erro || 'Erro ao cadastrar produto');
+      console.error('Detalhes do erro do servidor:', error); // Adicione esta linha
+      throw new Error(error.error || 'Erro ao cadastrar produto');
     }
-
     const novoProduto = await response.json();
     
     const cachedProdutos = JSON.parse(localStorage.getItem('cachedProdutos') || '[]');
